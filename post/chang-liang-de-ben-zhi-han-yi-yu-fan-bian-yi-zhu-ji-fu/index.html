@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" >
 
-<title>愿你被这个世界温柔以待 | Gridea</title>
+<title>常量的本质含义与反编译助记符 | Gridea</title>
 <meta name="description" content="愿半生编码，如一生老友！">
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -97,17 +97,54 @@
       <div class="main-container">
         <div class="content-container" data-aos="fade-up">
           <div class="post-detail">
-            <h2 class="post-title">愿你被这个世界温柔以待</h2>
-            <div class="post-date">2019-05-17</div>
-            
-              <div class="feature-container" style="background-image: url('http://pic.netbian.com//uploads/allimg/171212/195515-1513079715ce91.jpg')">
-              </div>
+            <h2 class="post-title">常量的本质含义与反编译助记符</h2>
+            <div class="post-date">2019-05-20</div>
             
             <div class="post-content">
-              <p>很感激我们能遇见，愿你被这个世界温柔以待</p>
+              <h1 id="案例">案例</h1>
+<pre><code class="language-java">public class MyTest2 {
+    public static void main(String[] args) {
+        System.out.println(MyParent2.src);
+    }
+}
+
+class MyParent2{
+    public static final String src = &quot;hello world&quot;;
+
+    static {
+        System.out.println(&quot;MyParent2 static block&quot;);
+    }
+}
+</code></pre>
+<p>运行结果</p>
+<pre><code>hello world
+</code></pre>
+<p>运行上述代码，猜测下<code>MyParent2</code>会不会被加载以及被初始化。哈哈，我既然这么问了，答案肯定就是否定的，我们一起分析下原因。</p>
+<p>首先，我们还是先看一下JVM加载了哪些类，如下图所示：
+<img src="https://RyanOrElse.github.io/post-images/1558349180672.png" alt="">
+从图中可知，JVM只加载了<code>com.ryan.jvm.classloader.MyTest2</code>,因为这是启动类（主动使用），所以被虚拟机加载了，但是<code>MyParent2</code>没有被加载，是不是意味着我们并不需要<code>MyParent2.class</code>文件呢，带着大胆的想法，于是我把target目录下生成的<code>MyParent2.class</code>文件删除，重新运行一次代码，运行结果依旧是<code>hello world</code>。
+好神奇，于是我决定反汇编一探究竟。
+<img src="https://RyanOrElse.github.io/post-images/1558350396950.png" alt="">
+很明显的是，ldc直接将常量<code>hello world</code>压栈，并没有任何<code>MyParent2</code>的影子。
+为了实验对比，我们现在可以把<code>public static final String src = &quot;hello world&quot;</code>改为<code>public static String src = &quot;hello world&quot;</code>，重新编译之后我们再来反汇编，得到下图：
+<img src="https://RyanOrElse.github.io/post-images/1558350623280.png" alt="">
+不难发现<code>MyParent2.src</code>的影子
+于是，我们不难得出一个结论：<font color=red>常量在编译阶段会存入到调用这个常量的方法所在类的常量池中，本质上，调用类并没有直接引用到定义常量的类，因此并不会触发定义常量的类的初始化（这里指的是将常量存放到了<code>MyTest2</code>的常量池中，之后<code>MyTest2</code>与<code>MyParent2</code>就没有任何关系了甚至，我们可以将<code>MyParent2.class</code>文件删除）</font></p>
+<h1 id="彩蛋">彩蛋</h1>
+<p>分享下在JVM中int类型数值采用何种指令入栈的，根据int值范围JVM入栈字节码指令就分为4类，下面分别介绍下这四类指令。
+当int取值-1~5采用<code>iconst</code>指令<code>iconst_m1~iconst_5</code>，取值-128~127采用<code>bipush</code>指令，取值-32768~32767采用<code>sipush</code>指令，取值-2147483648~2147483647采用<code>ldc</code>指令。</p>
 
             </div>
             
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://RyanOrElse.github.io/post/lei-de-jia-zai-lian-jie-yu-chu-shi-hua-guo-cheng">
+                  <h3 class="post-title">
+                    类的加载连接与初始化过程
+                  </h3>
+                </a>
+              </div>
             
 
             
