@@ -9,7 +9,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-<link rel="shortcut icon" href="https://RyanOrElse.github.io/favicon.ico?v=1558346536876">
+<link rel="shortcut icon" href="https://RyanOrElse.github.io/favicon.ico?v=1558346658305">
 <link rel="stylesheet" href="https://RyanOrElse.github.io/styles/main.css">
 
 
@@ -35,7 +35,7 @@
   <div class="top-container" data-aos="fade-right">
     <div class="top-header-container">
       <a class="site-title-container" href="https://RyanOrElse.github.io">
-        <img src="https://RyanOrElse.github.io/images/avatar.png?v=1558346536876" class="site-logo">
+        <img src="https://RyanOrElse.github.io/images/avatar.png?v=1558346658305" class="site-logo">
         <h1 class="site-title">Gridea</h1>
       </a>
       <div class="menu-btn" @click="menuVisible = !menuVisible">
@@ -205,7 +205,11 @@ class Child extends Parent{
 <li>对于静态字段来说，只有直接定义了该字段的类才会被初始化</li>
 <li>当一个类在初始化时，要求其父类都已经初始化完成了</li>
 </ul>
-<p>上面的结论显示，com.ryan.jvm.classloader.Parent<code>中的静态字段初始化了，而</code>com.ryan.jvm.classloader.Child<code>中的静态字段没有初始化，那么</code>com.ryan.jvm.classloader.Child<code>有没有被JVM加载呢？带着疑问，咱们可以通过调整VM参数运行一次，看下类的具体加载过程，具体操作如下 ![](https://RyanOrElse.github.io/post-images/1558346184578.png) 然后点击运行 ![](https://RyanOrElse.github.io/post-images/1558346205259.png) 可以看到JVM先后加载了</code>com.ryan.jvm.classloader.MyTest9<code>、</code>com.ryan.jvm.classloader.Parent<code>、</code>com.ryan.jvm.classloader.Child<code>,这是因为</code>com.ryan.jvm.classloader.MyTest9<code>是被Java虚拟机标明为启动类的类，所以优先加载，然后main方法中调用了</code>Child.str1<code>，所以相继加载了</code>com.ryan.jvm.classloader.Parent<code>、</code>com.ryan.jvm.classloader.Child`这两个类。</p>
+<p>上面的结论显示，<code>com.ryan.jvm.classloader.Parent</code>中的静态字段初始化了，而<code>com.ryan.jvm.classloader.Child</code>中的静态字段没有初始化，那么<code>com.ryan.jvm.classloader.Child</code>有没有被JVM加载呢？带着疑问，咱们可以通过调整VM参数运行一次，看下类的具体加载过程，具体操作如下</p>
+<p><img src="https://RyanOrElse.github.io/post-images/1558346184578.png" alt=""></p>
+<p>然后点击运行</p>
+<p><img src="https://RyanOrElse.github.io/post-images/1558346205259.png" alt=""></p>
+<p>可以看到JVM先后加载了<code>com.ryan.jvm.classloader.MyTest9</code>、<code>com.ryan.jvm.classloader.Parent</code>、<code>com.ryan.jvm.classloader.Child</code>,这是因为<code>com.ryan.jvm.classloader.MyTest9</code>是被Java虚拟机标明为启动类的类，所以优先加载，然后main方法中调用了<code>Child.str1</code>，所以相继加载了<code>com.ryan.jvm.classloader.Parent</code>、<code>com.ryan.jvm.classloader.Child</code>这两个类。</p>
 
             </div>
             
