@@ -1,0 +1,247 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>类加载 | Gridea</title>
+<link rel="shortcut icon" href="https://RyanOrElse.github.io/favicon.ico?v=1558343739729">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="stylesheet" href="https://RyanOrElse.github.io/styles/main.css">
+
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/moment.js/2.23.0/moment.min.js"></script>
+
+
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://RyanOrElse.github.io">
+  <img class="avatar" src="https://RyanOrElse.github.io/images/avatar.png?v=1558343739729" alt="">
+  </a>
+  <h1 class="site-title">
+    Gridea
+  </h1>
+  <p class="site-description">
+    愿半生编码 如一生老友
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+      
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              类加载
+            </h2>
+            <div class="post-info">
+              <time class="post-time">
+                · 2019-05-17 ·
+              </time>
+              
+                <a href="https://RyanOrElse.github.io/tag/yL6qD7vmF" class="post-tags">
+                  # Java虚拟机
+                </a>
+              
+            </div>
+            
+            <div class="post-content">
+              <h1 id="类加载">类加载</h1>
+<ul>
+<li>在java代码中，类型的加载、连接与初始化过程都是在程序运行期间完成的</li>
+<li>类的加载指的是将类的<code>.Class</code>文件中的二进制数据读入到内存中，将其放在运行时数据区的方法区内，然后再内存中创建一个<code>java.lang.Class</code>对象（规范并未说明<code>Class</code>对象位于哪里，HotSpot虚拟机将其放在了方法区中）用来封装类在方法区内的数据结构</li>
+<li>提供了更大的灵活性，增加了更多的可能性</li>
+<li>加载<code>.Class</code>文件的方式
+<ul>
+<li>从本地系统中直接加载</li>
+<li>通过网络下载<code>.Class</code>文件</li>
+<li>从zip，jar等归档文件中加载<code>.Class</code>文件</li>
+<li>从专有数据库中提取<code>.Class</code>文件</li>
+<li>将Java源文件动态编译为<code>.Class</code>文件</li>
+</ul>
+</li>
+</ul>
+<h1 id="类加载器深入剖析">类加载器深入剖析</h1>
+<ul>
+<li>Java虚拟机与程序的生命周期</li>
+<li>在如下几种情况下，Java虚拟机将结束生命周期
+<ul>
+<li>执行了<code>System.exit()</code>方法</li>
+<li>程序正常执行结束</li>
+<li>程序在执行过程中遇到了异常或错误而异常终止</li>
+<li>由于操作系统出现错误而导致Java虚拟机进程终止</li>
+</ul>
+</li>
+</ul>
+<h1 id="类的加载-连接与初始化">类的加载、连接与初始化</h1>
+<ul>
+<li>加载：查找并加载类的二进制数据</li>
+<li>连接
+<ul>
+<li>验证：确保被加载的类的正确性</li>
+<li>准备：为类的***静态变量***分配内存，并将其初始化为***默认值***</li>
+<li>解析：把类中的***符号引用***转换为***直接引用***</li>
+</ul>
+</li>
+<li>初始化：为类的***<font color=red>静态变量</font>***赋予正确的初始值</li>
+<li>Java程序对类的使用方式可分为两种
+<ul>
+<li>主动使用</li>
+<li>被动使用</li>
+</ul>
+</li>
+<li>所有的Java虚拟机实现必须在每个类或接口被Java程序***<font color=red>首次主动使用</font><em><strong>时才</strong></em><font color=red>初始化</font>***他们
+<ul>
+<li>主动使用
+<ul>
+<li>创建类的实例</li>
+<li>访问某个类或接口的静态变量（<code>getstatic</code>），或者对该静态变量赋值(<code>putstatic</code>)</li>
+<li>调用类的静态方法(<code>invokestatic</code>)</li>
+<li>反射（如<code>Class.forName(&quot;com.test.Test&quot;)</code>）</li>
+<li>初始化一个类的子类(初始化一个子类，也就是对其父类的主动使用，即会初始化其父类)</li>
+<li>Java虚拟机启动时被标明为启动类的类(包含main方法的类)</li>
+<li>JDK1.7开始提供的动态语言支持：
+<code>java.lang.invoke.MethodHandle</code>实例的解析结果
+<code>REF_getStatic</code>,<code>REF_putStatic</code>,<code>REF_invokeStatic</code>句柄对应的类没有初始化，则初始化</li>
+</ul>
+</li>
+<li>被动使用
+<ul>
+<li>除了以上七种情况，其他使用Java类的方式都被看作是对类的***<font color=red>被动使用</font>***，都不会导致类的***<font color=red>初始化</font>***</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="实践">实践</h1>
+<ul>
+<li>案例1</li>
+</ul>
+<pre><code class="language-Java">public class MyTest9 {
+    public static void main(String[] args) {
+        System.out.println(Child.str1);
+    }
+}
+
+class Parent{
+    public static String str1 = &quot;hello world&quot;;
+
+    static {
+        System.out.println(&quot;parent static block&quot;);
+    }
+
+}
+
+class Child extends Parent{
+    public static String str2 = &quot;welcome&quot;;
+
+    static {
+        System.out.println(&quot;child static block&quot;);
+    }
+}
+</code></pre>
+<p>运行结果：</p>
+<pre><code>parent static block
+hello world
+</code></pre>
+<p>从而可以得出结论：</p>
+<ul>
+<li>对于静态字段来说，只有直接定义了该字段的类才会被初始化</li>
+<li>当一个类在初始化时，要求其父类都已经初始化完成了</li>
+</ul>
+
+            </div>
+          </article>
+        </div>
+    
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://RyanOrElse.github.io/post/yuan-ni-bei-zhe-ge-shi-jie-wen-rou-yi-dai">
+              <h3 class="post-title">
+                愿你被这个世界温柔以待
+              </h3>
+            </a>
+          </div>  
+        
+
+        
+          
+            <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+<div id="gitalk-container"></div>
+
+<script>
+
+  var gitalk = new Gitalk({
+    clientID: 'd304550f734a797df43c',
+    clientSecret: 'acb5f1ab6e84779dd3fa068df59ad937b1488e1d',
+    repo: 'RyanOrElse.github.io',
+    owner: 'RyanOrElse',
+    admin: ['RyanOrElse'],
+    id: location.pathname,      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false  // Facebook-like distraction free mode
+  })
+
+  gitalk.render('gitalk-container')
+
+</script>
+
+          
+
+          
+        
+    
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+      </div>
+    </div>
+  </body>
+</html>
