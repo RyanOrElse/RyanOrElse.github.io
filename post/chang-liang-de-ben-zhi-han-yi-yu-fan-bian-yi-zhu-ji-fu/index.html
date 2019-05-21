@@ -9,7 +9,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-<link rel="shortcut icon" href="https://RyanOrElse.github.io/favicon.ico?v=1558353505863">
+<link rel="shortcut icon" href="https://RyanOrElse.github.io/favicon.ico?v=1558444136538">
 <link rel="stylesheet" href="https://RyanOrElse.github.io/styles/main.css">
 
 
@@ -35,7 +35,7 @@
   <div class="top-container" data-aos="fade-right">
     <div class="top-header-container">
       <a class="site-title-container" href="https://RyanOrElse.github.io">
-        <img src="https://RyanOrElse.github.io/images/avatar.png?v=1558353505863" class="site-logo">
+        <img src="https://RyanOrElse.github.io/images/avatar.png?v=1558444136538" class="site-logo">
         <h1 class="site-title">Gridea</h1>
       </a>
       <div class="menu-btn" @click="menuVisible = !menuVisible">
@@ -132,7 +132,30 @@ class MyParent2{
 为了实验对比，我们现在可以把<code>public static final String src = &quot;hello world&quot;</code>改为<code>public static String src = &quot;hello world&quot;</code>，重新编译之后我们再来反汇编，得到下图：
 <img src="https://RyanOrElse.github.io/post-images/1558350623280.png" alt="">
 不难发现<code>MyParent2.src</code>的影子
-于是，我们不难得出一个结论：<font color=red>常量在编译阶段会存入到调用这个常量的方法所在类的常量池中，本质上，调用类并没有直接引用到定义常量的类，因此并不会触发定义常量的类的初始化（这里指的是将常量存放到了<code>MyTest2</code>的常量池中，之后<code>MyTest2</code>与<code>MyParent2</code>就没有任何关系了甚至，我们可以将<code>MyParent2.class</code>文件删除）</font></p>
+于是，我们不难得出一个结论：<font color=red>常量在编译阶段会存入到调用这个常量的方法所在类的常量池中，本质上，调用类并没有直接引用到定义常量的类，因此并不会触发定义常量的类的初始化（这里指的是将常量存放到了<code>MyTest2</code>的常量池中，之后<code>MyTest2</code>与<code>MyParent2</code>就没有任何关系了甚至，我们可以将<code>MyParent2.class</code>文件删除）</font>
+但是，这边有一个特殊情况，具体看下面的代码：</p>
+<pre><code class="language-java">public class MyTest3 {
+    public static void main(String[] args) {
+        /*
+        运行结果
+            MyParent3 static block
+            8d083633-060f-4b2c-b36f-b76c65253587
+         */
+        System.out.println(MyParent3.str);
+    }
+}
+
+class MyParent3{
+    public static final String str = UUID.randomUUID().toString();
+
+    static {
+        System.out.println(&quot;MyParent3 static block&quot;);
+    }
+}
+</code></pre>
+<p>看运行结果打印了<code>MyParent3 static block</code>，说明主动使用了<code>MyParent3.class</code>，下面我们看下反编译的情况：
+<img src="https://RyanOrElse.github.io/post-images/1558444076239.png" alt="">
+果然不出所料，主动使用了<code>MyParent3.class</code>。所以说明当一个常量的值并非编译器可以确定的，那么其值就不会放到调用类的常量池中，这时在程序运行时，会导致主动使用这个常量所在的类，显然会导致这个类被初始化。</p>
 <h1 id="彩蛋">彩蛋</h1>
 <p>分享下在JVM中int类型数值采用何种指令入栈的，根据int值范围JVM入栈字节码指令就分为4类，下面分别介绍下这四类指令。
 当int取值-1~5采用<code>iconst</code>指令<code>iconst_m1~iconst_5</code>，取值-128~127采用<code>bipush</code>指令，取值-32768~32767采用<code>sipush</code>指令，取值-2147483648~2147483647采用<code>ldc</code>指令。</p>
